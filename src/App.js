@@ -1,84 +1,35 @@
 import React from "react";
 import "./App.css";
 
-const allData = [];
-for (let i = 1; i <= 25; i++) {
-  allData.push(i);
-}
-const perPage = 10;
-
-const reducer = (state, action) => {
-  console.log(action);
-  switch (action.type) {
-    case "start":
-      return { ...state, loading: true };
-    case "load":
-      const newData = allData.slice(state.after, state.after + perPage);
-      return {
-        ...state,
-        loading: false,
-        more: newData.length === perPage,
-        after: state.after + perPage,
-        data: [...state.data, ...newData]
-      };
-    default:
-      throw new Error();
-  }
-};
+import WithReducer from "./WithReducer";
+import WithContext from "./WithContext";
+import WithIntersection from "./WithIntersection";
+import StateMachineIntro from "./StateMachineIntro";
+import WithStateMachine from "./WithStateMachine";
 
 function App() {
-  const [state, dispatch] = React.useReducer(reducer, {
-    data: [],
-    after: 0,
-    loading: false,
-    more: true
-  });
-  const { data, loading, more } = state;
-  const [ref, setRef] = React.useState(null);
-  const observer = React.useRef(
-    new IntersectionObserver(
-      entries => {
-        if (!entries[0].isIntersecting) {
-          return;
-        }
-        dispatch({ type: "start" });
-        dispatch({ type: "load" });
-      },
-      { threshold: 1.0 }
-    )
-  );
-
-  React.useEffect(() => {
-    const currentRef = ref;
-    const currentObserver = observer.current;
-    if (currentRef) {
-      currentObserver.observe(currentRef);
-    }
-
-    return () => {
-      if (currentRef) {
-        currentObserver.unobserve(currentRef);
-      }
-    };
-  }, [ref]);
-
   return (
     <div className="App">
-      <ul>
-        {data.map(row => (
-          <li key={row} style={{ height: "50vh", background: "orange" }}>
-            {row}
-          </li>
-        ))}
-      </ul>
+      <h1>Data Loading Examples</h1>
+      <p>
+        These examples cover the use of useReducer, useContext,
+        IntersectionObserver, and managing the loading state using XState.
+      </p>
 
-      {loading && <div>Loading...</div>}
+      <h2>useReducer</h2>
+      <WithReducer />
 
-      {!loading && more && (
-        <div ref={setRef} style={{ height: "200px", background: "yellow" }}>
-          load more
-        </div>
-      )}
+      <h2>useContext</h2>
+      <WithContext />
+
+      <h2>IntersectionObserver</h2>
+      <WithIntersection />
+
+      <h2>XState Intro</h2>
+      <StateMachineIntro />
+
+      <h2>XState Data Loading Service</h2>
+      <WithStateMachine />
     </div>
   );
 }
